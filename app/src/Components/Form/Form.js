@@ -1,23 +1,82 @@
 import React, { useState } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+// Example traits data
+const traits = [
+  { trait: "Spontaneous", value: 1 },
+  { trait: "Analytical", value: 2 },
+  { trait: "Logical", value: 3 },
+  { trait: "Disciplined", value: 4 },
+  { trait: "Organized", value: 5 },
+  { trait: "Adventurous", value: 6 },
+  { trait: "Empathetic", value: 7 },
+  { trait: "Resilient", value: 8 },
+  { trait: "Creative", value: 9 },
+  { trait: "Compassionate", value: 10 },
+];
+
+// Example moods data
+const moods = [
+  { mood: "Stressed", value: 1 },
+  { mood: "Angry", value: 2 },
+  { mood: "Sad", value: 3 },
+  { mood: "Confused", value: 4 },
+  { mood: "Calm", value: 5 },
+  { mood: "Content", value: 6 },
+  { mood: "Peaceful", value: 7 },
+  { mood: "Happy", value: 8 },
+  { mood: "Excited", value: 9 },
+  { mood: "Surprised", value: 10 },
+];
 
 function Form() {
-  const [form, setForm] = useState({
-    favoriteGenre: "",
-    desiredMood: "",
+  const [formData, setFormData] = useState({
+    favoriteMood: "",
+    desiredTrait: "",
   });
+  const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
-  const handleFavoriteGenreChange = (event) => {
-    setForm({ ...form, favoriteGenre: event.target.value });
+  const handleFieldChange = (field, value) => {
+    setFormData({ ...formData, [field]: value });
+    setErrors({ ...errors, [field]: undefined });
   };
 
-  const handleDesiredMoodChange = (event) => {
-    setForm({ ...form, desiredMood: event.target.value });
-  };
+  const renderDropdownOptions = (options) => (
+    <>
+      <option value="">Select {options.label}</option>
+      {options.values.map((item, index) => (
+        <option key={index} value={item.value}>
+          {item[options.label.toLowerCase()]}
+        </option>
+      ))}
+    </>
+  );
 
-  const handleSubmit = (event) => {
+  const renderError = (field) =>
+    errors[field] && <div className="text-danger">{errors[field]}</div>;
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("Form submitted:", form);
+
+    try {
+      const response = await axios.post(
+        "http://localhost:80/books/match",
+        formData
+      );
+
+      if (response.status === 201) {
+        const matchingBooks = response.data.matchingBooks;
+        navigate("/books", { state: { matchingBooks } });
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        setErrors(error.response.data.errors);
+      } else {
+        console.error("Error during form submission:", error);
+      }
+    }
   };
 
   return (
@@ -32,55 +91,34 @@ function Form() {
 
         <div className="mb-4">
           <label className="form-label mb-3 fw-bold">
-            Please select your favorite literary genre
+            Which mood do you most commonly experience?
           </label>
           <select
-            value={form.favoriteGenre}
-            onChange={handleFavoriteGenreChange}
+            value={formData.favoriteMood}
+            onChange={({ target }) =>
+              handleFieldChange("favoriteMood", target.value)
+            }
             className="form-select"
           >
-            <option value="">Select Genre</option>
-            <option value="Mystery">Mystery</option>
-            <option value="Science Fiction">Science Fiction</option>
-            <option value="Romance">Romance</option>
-            <option value="Fantasy">Fantasy</option>
-            <option value="Historical Fiction">Historical Fiction</option>
-            <option value="Horror">Horror</option>
-            <option value="Thriller">Thriller</option>
-            <option value="Adventure">Adventure</option>
-            <option value="Comedy">Comedy</option>
-            <option value="Drama">Drama</option>
-            <option value="Crime">Crime</option>
-            <option value="Action">Action</option>
-            <option value="Non-fiction">Non-fiction</option>
-            <option value="Biography">Biography</option>
-            <option value="Poetry">Poetry</option>
-            <option value="Memoir">Memoir</option>
-            <option value="Science">Science</option>
+            {renderDropdownOptions({ values: moods, label: "Mood" })}
           </select>
+          {renderError("mood")}
         </div>
 
         <div className="mb-4">
           <label className="form-label mb-3 fw-bold">
-            What kind of mood or atmosphere are you looking for in a book?
+            Which trait describes you?
           </label>
           <select
-            value={form.desiredMood}
-            onChange={handleDesiredMoodChange}
+            value={formData.desiredTrait}
+            onChange={({ target }) =>
+              handleFieldChange("desiredTrait", target.value)
+            }
             className="form-select"
           >
-            <option value="">Select Mood</option>
-            <option value="Uplifting">Uplifting</option>
-            <option value="Thrilling">Thrilling</option>
-            <option value="Relaxing">Relaxing</option>
-            <option value="Mysterious">Mysterious</option>
-            <option value="Romantic">Romantic</option>
-            <option value="Thought-provoking">Thought-provoking</option>
-            <option value="Adventurous">Adventurous</option>
-            <option value="Nostalgic">Nostalgic</option>
-            <option value="Whimsical">Whimsical</option>
-            <option value="Inspiring">Inspiring</option>
+            {renderDropdownOptions({ values: traits, label: "Trait" })}
           </select>
+          {renderError("trait")}
         </div>
 
         <div className="text-center">

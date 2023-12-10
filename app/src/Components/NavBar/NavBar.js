@@ -54,7 +54,7 @@ function NavBar() {
             </NavLink>
             <NavLink
               className="nav-link fs-1.1"
-              to="/about"
+              to="/"
               activeClassName="active"
             >
               About
@@ -64,7 +64,7 @@ function NavBar() {
           <div className="navbar-nav mx-auto mb-2 mb-lg-0 ">
             <NavLink
               className="nav-link fs-1.1"
-              to="/login"
+              to="/"
               activeClassName="active"
             >
               Login

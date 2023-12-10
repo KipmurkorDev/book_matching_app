@@ -60,7 +60,7 @@ function Footer() {
         </Row>
       </Container>
       <div className="text-center mt-5">
-        <p>Discover new Bool, Book Harmony</p>
+        <p> &copy; 2023 Your Website Name Discover new Bool, Book Harmony</p>
       </div>
     </footer>
   );
