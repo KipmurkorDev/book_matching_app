@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-// Example traits data
 const traits = [
   { trait: "Spontaneous", value: 1 },
   { trait: "Analytical", value: 2 },
@@ -16,7 +15,6 @@ const traits = [
   { trait: "Compassionate", value: 10 },
 ];
 
-// Example moods data
 const moods = [
   { mood: "Stressed", value: 1 },
   { mood: "Angry", value: 2 },
@@ -35,6 +33,8 @@ function Form() {
     favoriteMood: "",
     desiredTrait: "",
   });
+  const base_url = process.env.REACT_APP_BASE_URL;
+
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
@@ -61,10 +61,7 @@ function Form() {
     event.preventDefault();
 
     try {
-      const response = await axios.post(
-        "http://localhost:80/books/match",
-        formData
-      );
+      const response = await axios.post(`${base_url}/match`, formData);
 
       if (response.status === 201) {
         const matchingBooks = response.data.matchingBooks;
